@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Dashboard</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-light">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">Admin Dashboard</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#assignTask_modal">+ Assign Task</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link text-light dropdown-toggle" href="#" id="adminMenuBtn" role="button" data-bs-toggle="dropdown">&#x22EE;</a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="/profile">View Profile</a>
+                        <form th:action="@{/logout}" method="post">
+                            <input type="submit" class="dropdown-item" value="Logout"/>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="container my-4">
+    <h4 class="mb-3 fw-bold">📊 Student Progress Report</h4>
+    <div class="table-responsive shadow-sm rounded bg-white p-3">
+        <table class="table table-hover align-middle text-center">
+            <thead class="table-dark">
+            <tr>
+                <th>Sr. No</th>
+                <th>Student</th>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Deadline</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="task, iterStat : ${tasks}">
+                <td th:text="${iterStat.index + 1}"></td>
+                <td>
+                    <a th:href="@{/taskDetails/{taskId}(taskId=${task.taskId})}" class="text-decoration-none fw-bold">
+                        <span th:text="${task.studentName}"></span>
+                    </a>
+                </td>
+
+                <td th:text="${task.taskName}"></td>
+                <td>
+          <span th:switch="${task.progress}">
+            <span th:case="'Not Started'" class="badge bg-secondary">Not Started</span>
+            <span th:case="'In Progress'" class="badge bg-info text-dark">In Progress</span>
+            <span th:case="'Completed'" class="badge bg-success">Completed</span>
+            <span th:case="'Delayed'" class="badge bg-warning text-dark">Delayed</span>
+            <span th:case="*"
+                  class="badge bg-dark">Unknown</span>
+          </span>
+                </td>
+                <td th:text="${task.deadline}"></td>
+                <td>
+                    <!-- EDIT BUTTON -->
+                    <button class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="modal"
+                            th:attr="data-bs-target='#editTaskModal__' + ${task.taskId}">
+                        ✏️ Edit
+                    </button>
+                    <!-- DELETE BUTTON -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmDeleteModal"
+                            th:attr="data-task-id=${task.taskId}">
+                        🗑️ Delete
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ASSIGN TASK MODAL -->
+<div class="modal fade" id="assignTask_modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/assignTask}" method="post" th:object="${taskAssign}">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">📝 Assign New Task</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Student</label>
+                        <select class="form-select" th:field="*{studentName}" required>
+                            <option value="">-- Select Student --</option>
+                            <option th:each="student : ${students}"
+                                    th:value="${student.studentName}"
+                                    th:text="${student.studentName}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Task Name</label>
+                        <input type="text" class="form-control" th:field="*{taskName}" placeholder="Enter task" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Deadline</label>
+                        <input type="date" id="editDeadlineDate" class="form-control" th:field="*{deadline}" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Progress</label>
+                        <select class="form-select" th:field="*{progress}" required>
+                            <option value="Not Started">Not Started</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Delayed">Delayed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">✅ Assign</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form th:action="@{/deleteTask}" method="post">
+            <input type="hidden" name="taskId" id="deleteTaskId"/>
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">⚠️ Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this task?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- EDIT TASK MODALS -->
+<div th:each="task : ${tasks}">
+    <div class="modal fade" th:id="'editTaskModal__' + ${task.taskId}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form th:action="@{/updateTask}" method="post">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">✏️ Edit Task</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="taskId" th:value="${task.taskId}" />
+
+                        <!-- Student Dropdown -->
+                        <div class="mb-3">
+                            <label class="form-label">Student</label>
+                            <select class="form-select" name="studentName" required>
+                                <option value="">-- Select Student --</option>
+                                <option th:each="student : ${students}"
+                                        th:value="${student.studentName}"
+                                        th:selected="${student.studentName == task.studentName}"
+                                        th:text="${student.studentName}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Task Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Task Name</label>
+                            <input type="text" class="form-control" name="taskName" th:value="${task.taskName}" required/>
+                        </div>
+
+                        <!-- Deadline -->
+                        <div class="mb-3">
+                            <label class="form-label">Deadline</label>
+                            <input type="date" class="form-control" name="deadline" th:value="${task.deadline}" required/>
+                        </div>
+
+                        <!-- Progress -->
+                        <div class="mb-3">
+                            <label class="form-label">Progress</label>
+                            <select class="form-select" name="progress">
+                                <option th:selected="${task.progress == 'Not Started'}" value="Not Started">Not Started</option>
+                                <option th:selected="${task.progress == 'In Progress'}" value="In Progress">In Progress</option>
+                                <option th:selected="${task.progress == 'Completed'}" value="Completed">Completed</option>
+                                <option th:selected="${task.progress == 'Delayed'}" value="Delayed">Delayed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">💾 Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    // Apply today's date as min for all deadline fields
+  window.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Assign Task Modal deadline
+    const assignDeadline = document.getElementById('deadlineDate');
+    if (assignDeadline) {
+      assignDeadline.setAttribute('min', today);
+    }
+
+    // Edit Task Modal deadline
+    const editDeadline = document.getElementById('editDeadlineDate');
+    if (editDeadline) {
+      editDeadline.setAttribute('min', today);
+    }
+  });
+
+
+    const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const taskId = button.getAttribute('data-task-id');
+      document.getElementById('deleteTaskId').value = taskId;
+    });
+
+
+   // Set today's date as min for the deadline input
+    window.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('deadlineDate').setAttribute('min', today);
+  });
+</script>
+
+</body>
+</html>

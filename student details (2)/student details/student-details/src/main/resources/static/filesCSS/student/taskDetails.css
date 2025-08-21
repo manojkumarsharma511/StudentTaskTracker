@@ -1,0 +1,33 @@
+body{
+    background-color: rgb(155, 153, 153);
+    color: azure;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+
+}
+
+#taskDetails {
+    width: 80%;
+    margin: 0 auto;
+    background-color: #f6f6f8;
+    padding: 20px;
+    border-radius: 8px;
+    color: black;
+}
+
+#taskDetails p {
+    font-size: 18px;
+    margin: 10px 0;
+    background-color: #e4e7f0;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#taskDetails span {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0px 100px;
+}

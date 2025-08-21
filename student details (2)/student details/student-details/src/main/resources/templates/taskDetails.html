@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Task Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container my-5">
+    <h3 class="text-center mb-4">Task Details</h3>
+    <form th:action="@{/taskDetails/update}" method="post" th:object="${task}">
+        <input type="hidden" th:field="*{taskId}"/>
+
+        <!-- Student Name -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Student Name:</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control"
+                       th:field="*{studentName}"
+                       th:readonly="${role != 'Admin'}"/>
+            </div>
+        </div>
+
+        <!-- Task Name -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Task Name:</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control"
+                       th:field="*{taskName}"
+                       th:readonly="${role != 'Admin'}"/>
+            </div>
+        </div>
+
+        <!-- Deadline -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Deadline:</label>
+            <div class="col-sm-8">
+                <input type="date" class="form-control"
+                       th:field="*{deadline}"
+                       th:readonly="${role != 'Admin'}"/>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Progress:</label>
+            <div class="col-sm-8">
+                <select class="form-select" th:field="*{progress}">
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Delayed">Delayed</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button class="btn btn-primary" type="submit">Update</button>
+
+            <!-- Show admin dashboard link if role is Admin -->
+            <a th:if="${role == 'Admin'}" th:href="@{/adminDashboard}"
+               class="btn btn-secondary">Back to Dashboard</a>
+
+            <!-- Show student dashboard link if role is Student -->
+            <a th:if="${role == 'Student'}" th:href="@{/studentDashboard}"
+               class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>
