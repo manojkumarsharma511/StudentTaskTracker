@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Refined minimal custom style -->
+    <style>
+        body {
+          background: #f8f9fa;
+        }
+
+        .navbar {
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-card {
+          background: #fff;
+          border-radius: 8px;
+          padding: 2rem;
+          box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .table th {
+          background: #343a40;
+          color: #fff;
+        }
+
+        .status-badge {
+          font-size: 0.75rem;
+          padding: 0.4em 0.7em;
+          border-radius: 50px;
+        }
+
+        .form-select {
+          min-width: 140px;
+        }
+
+        .btn-save {
+          font-size: 0.8rem;
+          padding: 0.35rem 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3 sticky-top">
+    <a class="navbar-brand fw-bold" href="#">🎓 Student Dashboard</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" th:href="@{/studentDashboard(status='In Progress')}">In Progress</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/studentDashboard(status='Completed')}">Completed</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/studentDashboard(status='Not Started')}">Not Started</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/studentDashboard(status='Delayed')}">Delayed</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/studentDashboard}">All Tasks</a></li>
+            <li class="nav-item dropdown">
+                <a class="nav-link text-light dropdown-toggle" href="#" id="studentMenuBtn" role="button" data-bs-toggle="dropdown">&#x22EE;</a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="/profile">View Profile</a>
+                    <form th:action="@{/logout}" method="post">
+                        <input type="submit" class="dropdown-item" value="Logout" />
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="container my-5">
+
+    <div class="dashboard-card">
+        <h4 class="fw-bold mb-4">📋 Your Assigned Tasks</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center">
+                <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Student</th>
+                    <th>Deadline</th>
+                    <th>Task</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task, iterStat : ${tasks}">
+                    <td th:text="${iterStat.count}">1</td>
+                    <td>
+                        <a th:href="@{/taskDetails/{taskId}(taskId=${task.taskId})}" class="text-decoration-none fw-bold">
+                            <span th:text="${task.studentName}"></span>
+                        </a>
+                    </td>
+
+                    <td th:text="${task.deadline}"></td>
+                    <td th:text="${task.taskName}"></td>
+                    <td>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <form th:action="@{/updateStudentTaskStatus}" method="post" class="d-flex align-items-center gap-2">
+                                <input type="hidden" name="taskId" th:value="${task.taskId}" />
+                                <select class="form-select form-select-sm" name="progress">
+                                    <option th:selected="${task.progress == 'Not Started'}">Not Started</option>
+                                    <option th:selected="${task.progress == 'In Progress'}">In Progress</option>
+                                    <option th:selected="${task.progress == 'Completed'}">Completed</option>
+                                    <option th:selected="${task.progress == 'Delayed'}">Delayed</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary btn-sm btn-save">Save</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
